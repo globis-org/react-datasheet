@@ -43,7 +43,7 @@ export default class DataSheet extends PureComponent {
     this.isSelected = this.isSelected.bind(this)
     this.isEditing = this.isEditing.bind(this)
     this.isClearing = this.isClearing.bind(this)
-    this.shouldUseIEClipboardApi = this.shouldUseIEClipboardApi.bind(this)
+    this.shouldUseIEClipboardAPI = this.shouldUseIEClipboardAPI.bind(this)
     this.handleIECopy = this.handleIECopy.bind(this)
     this.handleIEPaste = this.handleIEPaste.bind(this)
     this.handleComponentKey = this.handleComponentKey.bind(this)
@@ -140,7 +140,7 @@ export default class DataSheet extends PureComponent {
           return value
         }).join('\t')
       ).join('\n')
-      if (this.shouldUseIEClipboardApi()) {
+      if (this.shouldUseIEClipboardAPI()) {
         window.clipboardData.setData('Text', text);
       } else {
         e.clipboardData.setData('text/plain', text);
@@ -154,7 +154,7 @@ export default class DataSheet extends PureComponent {
       const parse = this.props.parsePaste || defaultParsePaste
       const changes = []
       let pasteData = null
-      if (this.shouldUseIEClipboardApi()) {
+      if (this.shouldUseIEClipboardAPI()) {
         pasteData = parse(window.clipboardData.getData('Text'));
       } else {
         pasteData = parse(e.clipboardData.getData('text/plain'));
@@ -409,7 +409,7 @@ export default class DataSheet extends PureComponent {
     document.addEventListener('mousedown', this.pageClick)
 
     // Copy paste event handler
-    if (this.shouldUseIEClipboardApi()) {
+    if (this.shouldUseIEClipboardAPI()) {
       document.addEventListener('keydown', this.handleIECopy)
       document.addEventListener('keydown', this.handleIEPaste);
     } else {
@@ -473,7 +473,7 @@ export default class DataSheet extends PureComponent {
     return this.state.clear.i === i && this.state.clear.j === j
   }
 
-  shouldUseIEClipboardApi () {
+  shouldUseIEClipboardAPI () {
     return 'clipboardData' in window
   }
 
