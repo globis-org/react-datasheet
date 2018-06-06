@@ -7,7 +7,7 @@ import DataCell from './DataCell'
 import DataEditor from './DataEditor'
 import ValueViewer from './ValueViewer'
 import { TAB_KEY, ENTER_KEY, DELETE_KEY, ESCAPE_KEY, BACKSPACE_KEY,
-  LEFT_KEY, UP_KEY, DOWN_KEY, RIGHT_KEY } from './keys'
+  LEFT_KEY, UP_KEY, DOWN_KEY, RIGHT_KEY, C_KEY, V_KEY } from './keys'
 
 const isEmpty = (obj) => Object.keys(obj).length === 0
 
@@ -43,6 +43,7 @@ export default class DataSheet extends PureComponent {
     this.isSelected = this.isSelected.bind(this)
     this.isEditing = this.isEditing.bind(this)
     this.isClearing = this.isClearing.bind(this)
+    this.shouldUseIEClipboardApi = this.shouldUseIEClipboardApi.bind(this)
     this.handleComponentKey = this.handleComponentKey.bind(this)
 
     this.handleKeyboardCellMovement = this.handleKeyboardCellMovement.bind(this)
@@ -135,7 +136,11 @@ export default class DataSheet extends PureComponent {
           return value
         }).join('\t')
       ).join('\n')
-      e.clipboardData.setData('text/plain', text)
+      if (this.shouldUseIEClipboardApi()) {
+        window.clipboardData.setData('Text', text);
+      } else {
+        e.clipboardData.setData('text/plain', text);
+      }
     }
   }
 
@@ -144,7 +149,12 @@ export default class DataSheet extends PureComponent {
       const { start } = this.getState()
       const parse = this.props.parsePaste || defaultParsePaste
       const changes = []
-      const pasteData = parse(e.clipboardData.getData('text/plain'))
+      let pasteData = null
+      if (this.shouldUseIEClipboardApi()) {
+        pasteData = parse(window.clipboardData.getData('Text'));
+      } else {
+        pasteData = parse(e.clipboardData.getData('text/plain'));
+      }
       // in order of preference
       const { data, onCellsChanged, onPaste, onChange } = this.props
       let end = {}
@@ -395,8 +405,19 @@ export default class DataSheet extends PureComponent {
     document.addEventListener('mousedown', this.pageClick)
 
     // Copy paste event handler
-    document.addEventListener('copy', this.handleCopy)
-    document.addEventListener('paste', this.handlePaste)
+    if (this.shouldUseIEClipboardApi()) {
+      document.addEventListener('keydown', (e) => {
+        if ((e.keyCode == C_KEY || e.which == C_KEY) && e.ctrlKey) {
+          this.handleCopy(e);
+        }
+        if ((e.keyCode == V_KEY || e.which == V_KEY) && e.ctrlKey) {
+          this.handlePaste(e)
+        }
+      })
+    } else {
+      document.addEventListener('copy', this.handleCopy)
+      document.addEventListener('paste', this.handlePaste);
+    }
   }
 
   onMouseOver (i, j) {
@@ -452,6 +473,10 @@ export default class DataSheet extends PureComponent {
 
   isClearing (i, j) {
     return this.state.clear.i === i && this.state.clear.j === j
+  }
+
+  shouldUseIEClipboardApi () {
+    return 'clipboardData' in window
   }
 
   render () {
