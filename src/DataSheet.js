@@ -44,6 +44,8 @@ export default class DataSheet extends PureComponent {
     this.isEditing = this.isEditing.bind(this)
     this.isClearing = this.isClearing.bind(this)
     this.shouldUseIEClipboardApi = this.shouldUseIEClipboardApi.bind(this)
+    this.handleIECopy = this.handleIECopy.bind(this)
+    this.handleIEPaste = this.handleIEPaste.bind(this)
     this.handleComponentKey = this.handleComponentKey.bind(this)
 
     this.handleKeyboardCellMovement = this.handleKeyboardCellMovement.bind(this)
@@ -66,6 +68,8 @@ export default class DataSheet extends PureComponent {
     document.removeEventListener('mouseup', this.onMouseUp)
     document.removeEventListener('copy', this.handleCopy)
     document.removeEventListener('paste', this.handlePaste)
+    document.removeEventListener('keydown', this.handleIECopy);
+    document.removeEventListener('keydown', this.handleIEPaste);
   }
 
   componentDidMount () {
@@ -406,14 +410,8 @@ export default class DataSheet extends PureComponent {
 
     // Copy paste event handler
     if (this.shouldUseIEClipboardApi()) {
-      document.addEventListener('keydown', (e) => {
-        if ((e.keyCode == C_KEY || e.which == C_KEY) && e.ctrlKey) {
-          this.handleCopy(e);
-        }
-        if ((e.keyCode == V_KEY || e.which == V_KEY) && e.ctrlKey) {
-          this.handlePaste(e)
-        }
-      })
+      document.addEventListener('keydown', this.handleIECopy)
+      document.addEventListener('keydown', this.handleIEPaste);
     } else {
       document.addEventListener('copy', this.handleCopy)
       document.addEventListener('paste', this.handlePaste);
@@ -477,6 +475,18 @@ export default class DataSheet extends PureComponent {
 
   shouldUseIEClipboardApi () {
     return 'clipboardData' in window
+  }
+
+  handleIECopy (e) {
+    if ((e.keyCode == C_KEY || e.which == C_KEY) && e.ctrlKey) {
+      this.handleCopy(e)
+    }
+  }
+
+  handleIEPaste (e) {
+    if ((e.keyCode == V_KEY || e.which == V_KEY) && e.ctrlKey) {
+      this.handlePaste(e)
+    }
   }
 
   render () {
