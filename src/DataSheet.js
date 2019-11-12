@@ -271,9 +271,6 @@ export default class DataSheet extends PureComponent {
       110
     ].indexOf(keyCode) > -1
 
-    // セルに値を入力した後、別のセルをクリックした際に、入力できなくなるIEの問題への対処
-    document.removeEventListener('keydown', this.handleKey)
-
     if (noCellsSelected || ctrlKeyPressed) {
       return true
     }
@@ -398,9 +395,6 @@ export default class DataSheet extends PureComponent {
     let editing = (isEmpty(this.state.editing) || this.state.editing.i !== i || this.state.editing.j !== j)
       ? {} : this.state.editing
     this._setState({selecting: true, start: {i, j}, end: {i, j}, editing: editing, forceEdit: false})
-
-    // セルに値を入力した後、別のセルをクリックした際に、入力できなくなるIEの問題への対処
-    document.addEventListener('keydown', this.handleKey)
 
     // Keep listening to mouse if user releases the mouse (dragging outside)
     document.addEventListener('mouseup', this.onMouseUp)
